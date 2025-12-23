@@ -12,3 +12,4 @@ C:\Users\plati\Desktop\AÑO 3\ENTORNO SERVIDOR\AA1\ConsolePhoneStore\obj\Debug\n
 C:\Users\plati\Desktop\AÑO 3\ENTORNO SERVIDOR\AA1\ConsolePhoneStore\obj\Debug\net10.0\ConsolePhoneStore.pdb
 C:\Users\plati\Desktop\AÑO 3\ENTORNO SERVIDOR\AA1\ConsolePhoneStore\obj\Debug\net10.0\ConsolePhoneStore.genruntimeconfig.cache
 C:\Users\plati\Desktop\AÑO 3\ENTORNO SERVIDOR\AA1\ConsolePhoneStore\obj\Debug\net10.0\ref\ConsolePhoneStore.dll
+C:\Users\plati\Desktop\AÑO 3\ENTORNO SERVIDOR\AA1\ConsolePhoneStore\obj\Debug\net10.0\ConsolePhoneStore.sourcelink.json

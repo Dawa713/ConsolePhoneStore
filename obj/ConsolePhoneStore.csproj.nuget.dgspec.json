@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj": {}
+    "c:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj": {
+    "c:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj",
+        "projectUniqueName": "c:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj",
         "projectName": "ConsolePhoneStore",
-        "projectPath": "C:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj",
+        "projectPath": "c:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\ConsolePhoneStore.csproj",
         "packagesPath": "C:\\Users\\plati\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\obj\\",
+        "outputPath": "c:\\Users\\plati\\Desktop\\AÑO 3\\ENTORNO SERVIDOR\\AA1\\ConsolePhoneStore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\plati\\AppData\\Roaming\\NuGet\\NuGet.Config"
