@@ -1,4 +1,4 @@
-namespace ConsolePhoneStore.Models
+namespace Models
 {
     public abstract class Producto
     {

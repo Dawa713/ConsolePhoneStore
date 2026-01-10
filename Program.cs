@@ -1,19 +1,37 @@
-﻿using ConsolePhoneStore.Models;
+﻿using ConsolePhoneStore.Utils;
 
 class Program
 {
     static void Main()
     {
-        Telefono t = new Telefono(1, "Samsung", "Galaxy S23", 799.99m, true);
-        Cliente c = new Cliente
-        {
-            Id = 1,
-            Nombre = "Fran",
-            Email = "fran@email.com",
-            Password = "1234"
-        };
+        int opcion;
 
-        Console.WriteLine(t.GetDescripcion());
-        Console.WriteLine($"Cliente: {c.Nombre} - {c.Email}");
+        do
+        {
+            opcion = Menu.MostrarMenuPrincipal();
+
+            switch (opcion)
+            {
+                case 1:
+                    Console.WriteLine("Mostrando catálogo de teléfonos...");
+                    Console.ReadKey();
+                    break;
+
+                case 2:
+                    Console.WriteLine("Registro de cliente (pendiente)...");
+                    Console.ReadKey();
+                    break;
+
+                case 3:
+                    Console.WriteLine("Inicio de sesión (pendiente)...");
+                    Console.ReadKey();
+                    break;
+
+                case 0:
+                    Console.WriteLine("Saliendo de la aplicación...");
+                    break;
+            }
+
+        } while (opcion != 0);
     }
 }
