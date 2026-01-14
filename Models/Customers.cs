@@ -1,3 +1,5 @@
+using ConsolePhoneStore.Utils;
+ 
 namespace ConsolePhoneStore.Models
 {
     public class Customer

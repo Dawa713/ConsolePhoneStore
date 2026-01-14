@@ -1,6 +1,8 @@
-﻿using ConsolePhoneStore.Utils;
+﻿
 using ConsolePhoneStore.Services;
 using ConsolePhoneStore.Models;
+using ConsolePhoneStore.Utils;
+
 
 class Program
 {
@@ -27,13 +29,15 @@ class Program
         switch (opcionCatalogo)
         {
             case 1:
-                Console.Clear();
+                ConsoleHelper.SafeClear();
+
                 foreach (var phone in PhoneService.GetAll())
                 {
                     Console.WriteLine(
                         $"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price:C}"
                     );
                 }
+                Console.WriteLine("\nPulsa cualquier tecla para continuar...");
                 Console.ReadKey();
                 break;
 
@@ -49,6 +53,7 @@ class Program
                         $"{phone.Brand} {phone.Model} - {phone.Price:C}"
                     );
                 }
+                Console.WriteLine("\nPulsa cualquier tecla para continuar...");
                 Console.ReadKey();
                 break;
 
@@ -61,7 +66,8 @@ class Program
 
 
                     case 2:
-    Console.Clear();
+    ConsoleHelper.SafeClear();
+
     Console.WriteLine("📝 REGISTRO DE CLIENTE\n");
 
     string nombre = InputValidator.ReadNonEmptyString(
@@ -76,6 +82,7 @@ class Program
     CustomerService.Register(nombre, email, password);
 
     Console.WriteLine("\n✅ Registro completado correctamente");
+    Console.WriteLine("\nPulsa cualquier tecla para continuar...");
     Console.ReadKey();
     break;
 
@@ -88,11 +95,13 @@ class Program
 
                         clienteLogueado = CustomerService.Login(emailLogin, passLogin);
                         Console.WriteLine($"✔️ Bienvenido {clienteLogueado.Name}");
+                       
                         Console.ReadKey();
                         break;
 
                     case 4:
-    Console.Clear();
+    ConsoleHelper.SafeClear();
+
     var phones = PhoneService.GetAll();
 
     foreach (var phone in phones)
@@ -116,10 +125,12 @@ class Program
 
     CartService.AddToCart(selectedPhone, quantity);
     Console.WriteLine("✔️ Producto añadido al carrito");
+    Console.WriteLine("\nPulsa cualquier tecla para continuar...");
     Console.ReadKey();
     break;
                     case 5:
-    Console.Clear();
+    ConsoleHelper.SafeClear();
+
     Console.WriteLine("🛒 CARRITO\n");
 
     var cart = CartService.GetCart();
@@ -127,6 +138,7 @@ class Program
     if (!cart.Any())
     {
         Console.WriteLine("Carrito vacío");
+        Console.WriteLine("\nPulsa cualquier tecla para continuar...");
         Console.ReadKey();
         break;
     }
@@ -137,10 +149,12 @@ class Program
     }
 
     Console.WriteLine($"\nSubtotal: {CartService.CalculateSubtotal()}€");
+    Console.WriteLine("\nPulsa cualquier tecla para continuar...");
     Console.ReadKey();
     break;
                    case 6:
-    Console.Clear();
+    ConsoleHelper.SafeClear();
+
 
     var subtotal = CartService.CalculateSubtotal();
     var iva = subtotal * 0.21m;
@@ -158,18 +172,17 @@ class Program
             item.phone.Stock -= item.quantity;
         }
 
-        FileService.SavePurchase(
-            clienteLogueado!,
-            CartService.GetCart(),
-            subtotal,
-            iva,
-            total
-        );
+                            FileService.SavePurchase(
+    clienteLogueado!.Email,
+    CartService.GetCart(),
+    total
+);
+
 
         CartService.ClearCart();
         Console.WriteLine("✅ Compra guardada correctamente");
     }
-
+Console.WriteLine("\nPulsa cualquier tecla para continuar...");
     Console.ReadKey();
     break;
 
@@ -180,6 +193,7 @@ class Program
 
                     default:
                         Console.WriteLine("Opción inválida");
+                        Console.WriteLine("\nPulsa cualquier tecla para continuar...");
                         Console.ReadKey();
                         break;
                 }
@@ -187,6 +201,7 @@ class Program
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ ERROR: {ex.Message}");
+                Console.WriteLine("\nPulsa cualquier tecla para continuar...");
                 Console.ReadKey();
             }
         }

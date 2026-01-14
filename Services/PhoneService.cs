@@ -9,11 +9,11 @@ namespace ConsolePhoneStore.Services
 
         static PhoneService()
         {
-            phones.Add(new Phone(nextId++, "Samsung", "Galaxy S24", 899.99m, 10));
-            phones.Add(new Phone(nextId++, "Apple", "iPhone 15", 1099.99m, 8));
-            phones.Add(new Phone(nextId++, "Xiaomi", "Redmi Note 13", 299.99m, 15));
-        }
+            phones.Add(new Phone(nextId++, "Samsung", "Galaxy S25", 999.99m, 25));
+            phones.Add(new Phone(nextId++, "Apple", "iPhone 17", 1099.99m, 17));
+            phones.Add(new Phone(nextId++, "Xiaomi", "Redmi Note 15", 299.99m, 15));
 
+        }
         public static List<Phone> GetAll()
         {
             return phones;
