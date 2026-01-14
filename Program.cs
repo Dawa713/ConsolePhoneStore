@@ -18,48 +18,66 @@ class Program
                 switch (opcion)
                 {
                    case 1:
-    Console.WriteLine("📱 CATÁLOGO DE TELÉFONOS\n");
+    bool volver = false;
 
-    foreach (var phone in PhoneService.GetAll())
+    while (!volver)
     {
-        Console.WriteLine(
-            $"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price:C} (Stock: {phone.Stock})"
-        );
-    }
+        int opcionCatalogo = Menu.MostrarMenuCatalogo();
 
-    Console.WriteLine("\nBuscar por marca (o ENTER para volver): ");
-    string search = Console.ReadLine() ?? "";
-
-    if (!string.IsNullOrWhiteSpace(search))
-    {
-        var results = PhoneService.SearchByBrand(search);
-
-        Console.WriteLine("\nResultados:");
-        foreach (var phone in results)
+        switch (opcionCatalogo)
         {
-            Console.WriteLine(
-                $"{phone.Brand} {phone.Model} - {phone.Price:C}"
-            );
+            case 1:
+                Console.Clear();
+                foreach (var phone in PhoneService.GetAll())
+                {
+                    Console.WriteLine(
+                        $"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price:C}"
+                    );
+                }
+                Console.ReadKey();
+                break;
+
+            case 2:
+                Console.Write("Marca a buscar: ");
+                string brand = Console.ReadLine() ?? "";
+
+                var results = PhoneService.SearchByBrand(brand);
+
+                foreach (var phone in results)
+                {
+                    Console.WriteLine(
+                        $"{phone.Brand} {phone.Model} - {phone.Price:C}"
+                    );
+                }
+                Console.ReadKey();
+                break;
+
+            case 0:
+                volver = true;
+                break;
         }
     }
-
-    Console.ReadKey();
     break;
 
+
                     case 2:
-                        Console.Write("Nombre: ");
-                        string nombre = Console.ReadLine() ?? string.Empty;
+    Console.Clear();
+    Console.WriteLine("📝 REGISTRO DE CLIENTE\n");
 
-                        Console.Write("Email: ");
-                        string email = Console.ReadLine() ?? string.Empty;
+    string nombre = InputValidator.ReadNonEmptyString(
+        "Nombre (máx 10 caracteres): ", 10);
 
-                        Console.Write("Contraseña: ");
-                        string password = Console.ReadLine() ?? string.Empty;
+    string email = InputValidator.ReadValidEmail(
+        "Email: ");
 
-                        CustomerService.Register(nombre, email, password);
-                        Console.WriteLine("✔️ Registro completado");
-                        Console.ReadKey();
-                        break;
+    string password = InputValidator.ReadPassword(
+        "Contraseña (6-10 caracteres): ", 6, 10);
+
+    CustomerService.Register(nombre, email, password);
+
+    Console.WriteLine("\n✅ Registro completado correctamente");
+    Console.ReadKey();
+    break;
 
                     case 3:
                         Console.Write("Email: ");
@@ -72,6 +90,89 @@ class Program
                         Console.WriteLine($"✔️ Bienvenido {clienteLogueado.Name}");
                         Console.ReadKey();
                         break;
+
+                    case 4:
+    Console.Clear();
+    var phones = PhoneService.GetAll();
+
+    foreach (var phone in phones)
+    {
+        Console.WriteLine($"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price}€ (Stock {phone.Stock})");
+    }
+
+    Console.Write("\nID del teléfono: ");
+    int id = int.Parse(Console.ReadLine()!);
+
+    Console.Write("Cantidad: ");
+    int quantity = int.Parse(Console.ReadLine()!);
+
+    var selectedPhone = PhoneService.GetById(id);
+
+    if (selectedPhone == null)
+        throw new Exception("Teléfono no encontrado");
+
+    if (quantity > selectedPhone.Stock)
+        throw new Exception("Stock insuficiente");
+
+    CartService.AddToCart(selectedPhone, quantity);
+    Console.WriteLine("✔️ Producto añadido al carrito");
+    Console.ReadKey();
+    break;
+                    case 5:
+    Console.Clear();
+    Console.WriteLine("🛒 CARRITO\n");
+
+    var cart = CartService.GetCart();
+
+    if (!cart.Any())
+    {
+        Console.WriteLine("Carrito vacío");
+        Console.ReadKey();
+        break;
+    }
+
+    foreach (var item in cart)
+    {
+        Console.WriteLine($"{item.phone.Brand} {item.phone.Model} x{item.quantity} = {item.phone.Price * item.quantity}€");
+    }
+
+    Console.WriteLine($"\nSubtotal: {CartService.CalculateSubtotal()}€");
+    Console.ReadKey();
+    break;
+                   case 6:
+    Console.Clear();
+
+    var subtotal = CartService.CalculateSubtotal();
+    var iva = subtotal * 0.21m;
+    var total = subtotal + iva;
+
+    Console.WriteLine($"Subtotal: {subtotal:C}");
+    Console.WriteLine($"IVA (21%): {iva:C}");
+    Console.WriteLine($"TOTAL: {total:C}");
+
+    Console.Write("\nConfirmar compra (s/n): ");
+    if (Console.ReadLine()?.ToLower() == "s")
+    {
+        foreach (var item in CartService.GetCart())
+        {
+            item.phone.Stock -= item.quantity;
+        }
+
+        FileService.SavePurchase(
+            clienteLogueado!,
+            CartService.GetCart(),
+            subtotal,
+            iva,
+            total
+        );
+
+        CartService.ClearCart();
+        Console.WriteLine("✅ Compra guardada correctamente");
+    }
+
+    Console.ReadKey();
+    break;
+
 
                     case 0:
                         salir = true;

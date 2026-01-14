@@ -6,11 +6,13 @@ namespace ConsolePhoneStore.Utils
         {
             Console.Clear();
             Console.WriteLine("=== MENU PRINCIPAL ===");
-            Console.WriteLine("1. Catálogo de teléfonos");
-            Console.WriteLine("2. Registro de usuario");
+            Console.WriteLine("1. Ver catálogo");
+            Console.WriteLine("2. Registrarse");
             Console.WriteLine("3. Iniciar sesión");
+            Console.WriteLine("4. Añadir al carrito");
+            Console.WriteLine("5. Ver carrito");
+            Console.WriteLine("6. Finalizar compra");
             Console.WriteLine("0. Salir");
-            Console.Write("Seleccione una opción: ");
             
             if (int.TryParse(Console.ReadLine(), out int opcion))
             {
@@ -18,5 +20,28 @@ namespace ConsolePhoneStore.Utils
             }
             return -1;
         }
+        public static int MostrarMenuCatalogo()
+{
+    int opcion;
+
+    do
+    {
+        Console.Clear();
+        Console.WriteLine("📱 CATÁLOGO DE TELÉFONOS");
+        Console.WriteLine("1. Listar todos");
+        Console.WriteLine("2. Buscar por marca");
+        Console.WriteLine("0. Volver");
+        Console.Write("Opción: ");
+
+        if (!int.TryParse(Console.ReadLine(), out opcion))
+        {
+            opcion = -1;
+        }
+
+    } while (opcion < 0 || opcion > 2);
+
+    return opcion;
+}
+
     }
 }

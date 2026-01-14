@@ -25,5 +25,10 @@ namespace ConsolePhoneStore.Services
                 .Where(p => p.Brand.ToLower().Contains(brand.ToLower()))
                 .ToList();
         }
+        public static Phone? GetById(int id)
+{
+    return phones.FirstOrDefault(p => p.Id == id);
+}
+
     }
 }

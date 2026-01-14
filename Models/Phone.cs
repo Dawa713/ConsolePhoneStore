@@ -6,7 +6,7 @@ namespace ConsolePhoneStore.Models
         public string Brand { get; }
         public string Model { get; }
         public decimal Price { get; }
-        public int Stock { get; private set; }
+        public int Stock { get; set; }
         public DateTime ReleaseDate { get; }
         public bool IsActive { get; }
 
