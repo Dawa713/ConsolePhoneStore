@@ -1,60 +1,91 @@
 using ConsolePhoneStore.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ConsolePhoneStore.Utils
 {
     public static class FileService
     {
-        private static readonly string filePath = "customers.txt";
+        private static readonly string customersPath = "Data/customers.json";
+        private static readonly string phonesPath = "Data/phones.json";
 
-        // 🔹 Cargar clientes desde fichero
+        // ==================== CLIENTES ====================
+        // 🔹 Cargar clientes desde fichero JSON
         public static List<Customer> LoadCustomers()
         {
             List<Customer> customers = new();
 
-            if (!File.Exists(filePath))
+            if (!File.Exists(customersPath))
                 return customers;
 
-            foreach (var line in File.ReadAllLines(filePath))
+            try
             {
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                // Formato: id|name|email|password
-                var parts = line.Split('|');
-
-                if (parts.Length != 4)
-                    continue;
-
-                customers.Add(new Customer(
-                    int.Parse(parts[0]),
-                    parts[1],
-                    parts[2],
-                    parts[3]
-                ));
+                string json = File.ReadAllText(customersPath);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                customers = JsonSerializer.Deserialize<List<Customer>>(json, options) ?? new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar clientes: {ex.Message}");
             }
 
             return customers;
         }
 
-        // 🔹 Guardar UN cliente (append)
-        public static void SaveCustomer(Customer customer)
-        {
-            string line = $"{customer.Id}|{customer.Name}|{customer.Email}|{customer.Password}";
-            File.AppendAllText(filePath, line + Environment.NewLine);
-        }
-
-        // 🔹 Guardar TODOS los clientes (opcional)
+        // 🔹 Guardar TODOS los clientes en JSON
         public static void SaveCustomers(List<Customer> customers)
         {
-            List<string> lines = new();
-
-            foreach (var c in customers)
+            try
             {
-                lines.Add($"{c.Id}|{c.Name}|{c.Email}|{c.Password}");
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string json = JsonSerializer.Serialize(customers, options);
+                File.WriteAllText(customersPath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al guardar clientes: {ex.Message}");
+            }
+        }
+
+        // ==================== TELÉFONOS ====================
+        // 🔹 Cargar teléfonos desde fichero JSON
+        public static List<Phone> LoadPhones()
+        {
+            List<Phone> phones = new();
+
+            if (!File.Exists(phonesPath))
+                return phones;
+
+            try
+            {
+                string json = File.ReadAllText(phonesPath);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                phones = JsonSerializer.Deserialize<List<Phone>>(json, options) ?? new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar teléfonos: {ex.Message}");
             }
 
-            File.WriteAllLines(filePath, lines);
+            return phones;
         }
+
+        // 🔹 Guardar TODOS los teléfonos en JSON
+        public static void SavePhones(List<Phone> phones)
+        {
+            try
+            {
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string json = JsonSerializer.Serialize(phones, options);
+                File.WriteAllText(phonesPath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al guardar teléfonos: {ex.Message}");
+            }
+        }
+
+        // ==================== COMPRAS ====================
         public static void SavePurchase(
     string customerEmail,
     List<(Phone phone, int quantity)> cart,

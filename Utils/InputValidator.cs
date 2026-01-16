@@ -56,6 +56,26 @@ namespace ConsolePhoneStore.Utils
             } while (true);
         }
 
+        public static string ReadPasswordLogin(string message)
+        {
+            string? input;
+
+            do
+            {
+                Console.Write(message);
+                input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("❌ La contraseña no puede estar vacía");
+                    continue;
+                }
+
+                return input;
+
+            } while (true);
+        }
+
         public static string ReadValidEmail(string message)
         {
             string? input;

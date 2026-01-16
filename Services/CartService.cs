@@ -25,6 +25,24 @@ namespace ConsolePhoneStore.Services
         {
             return cart;
         }
+        public static void RemoveFromCart(int phoneId, int quantity)
+{
+    var item = cart.FirstOrDefault(i => i.phone.Id == phoneId);
+
+    if (item.phone == null)
+        throw new Exception("Producto no encontrado en el carrito");
+
+    if (quantity >= item.quantity)
+    {
+        cart.Remove(item);
+    }
+    else
+    {
+        int index = cart.IndexOf(item);
+        cart[index] = (item.phone, item.quantity - quantity);
+    }
+}
+
 
         public static void ClearCart()
         {
