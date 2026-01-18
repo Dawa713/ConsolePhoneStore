@@ -15,7 +15,7 @@ namespace ConsolePhoneStore.Services
         // Contador de IDs para asignar nuevos IDs únicos a clientes
         private static int nextId = customers.Any() ? customers.Max(c => c.Id) + 1 : 1;
 
-        /// <summary>
+ 
         /// Constructor estático que se ejecuta una sola vez al cargar la clase.
         /// Crea un usuario administrador por defecto si no existe.
         /// </summary>
@@ -36,10 +36,8 @@ namespace ConsolePhoneStore.Services
             }
         }
 
-        /// <summary>
         /// Registra un nuevo cliente en el sistema.
         /// Valida que no exista otro usuario con el mismo email.
-        /// </summary>
         public static void Register(string name, string email, string password)
         {
             // Verificar que el email no esté ya registrado
@@ -54,10 +52,8 @@ namespace ConsolePhoneStore.Services
             FileService.SaveCustomers(customers);
         }
 
-        /// <summary>
         /// Autentica un usuario verificando su nombre y contraseña.
         /// Devuelve el cliente si las credenciales son correctas, null si no.
-        /// </summary>
         public static Customer? Login(string name, string password)
         {
             try
@@ -81,9 +77,7 @@ namespace ConsolePhoneStore.Services
             }
         }
 
-        /// <summary>
         /// Obtiene la lista completa de todos los clientes registrados.
-        /// </summary>
         public static List<Customer> GetAll()
         {
             return customers;

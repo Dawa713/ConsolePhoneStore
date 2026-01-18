@@ -1,0 +1,17 @@
+=================================
+Fecha: 17/01/2026 12:49:09
+Cliente: paco@mail.com
+TOTAL: 0,00€
+
+=================================
+Fecha: 17/01/2026 12:49:27
+Cliente: paco@mail.com
+TOTAL: 0,00€
+
+=================================
+Fecha: 17/01/2026 13:02:28
+Cliente: paco@mail.com
+Samsung Galaxy S25 x2 = 1999,98€
+Xiaomi Redmi Note 15 x2 = 599,98€
+TOTAL: 3145,9516€
+

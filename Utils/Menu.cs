@@ -1,8 +1,15 @@
 namespace ConsolePhoneStore.Utils
 {
+    /// <summary>
+    /// Clase de utilidad para mostrar los diferentes menús de la aplicación.
+    /// Proporciona interfaces visuales para usuarios logueados y no logueados.
+    /// </summary>
     public static class Menu
     {
-        // MENÚ CUANDO NO HAY USUARIO LOGUEADO
+ 
+        /// Muestra el menú principal para usuarios NO logueados.
+        /// Opciones: Ver catálogo, Registrarse, Iniciar sesión, Salir.
+ 
         public static int MostrarMenuPublico()
         {
             Console.Clear();
@@ -16,24 +23,25 @@ namespace ConsolePhoneStore.Utils
             return LeerOpcion();
         }
 
-        // MENÚ CUANDO HAY USUARIO LOGUEADO
+ 
+        /// Muestra el menú principal para usuarios logueados.
+        /// Si es administrador, muestra opción adicional para añadir productos.
+        /// Opciones: Añadir carrito, Ver carrito (con submenú para vaciar/finalizar), (Admin: Añadir), Logout.
+ 
         public static int MostrarMenuPrivado(string nombreUsuario, bool esAdmin = false)
         {
             Console.Clear();
             Console.WriteLine($"=== BIENVENIDO {nombreUsuario.ToUpper()} ===");
             if (esAdmin)
-                Console.WriteLine("👑 (ADMINISTRADOR)\n");
+                Console.WriteLine("(ADMINISTRADOR)\n");
             else
                 Console.WriteLine();
             
-            Console.WriteLine("1. Ver catálogo");
-            Console.WriteLine("2. Añadir producto al carrito");
-            Console.WriteLine("3. Ver carrito");
-            Console.WriteLine("4. Quitar producto del carrito");
-            Console.WriteLine("5. Finalizar compra");
+            Console.WriteLine("1. Añadir producto al carrito");
+            Console.WriteLine("2. Ver carrito ");
             
             if (esAdmin)
-                Console.WriteLine("6. Añadir nuevo artículo al catálogo (ADMIN)");
+                Console.WriteLine("3. Añadir nuevo artículo al catálogo (ADMIN)");
             
             Console.WriteLine("0. Cerrar sesión");
             Console.Write("Opción: ");
@@ -41,7 +49,10 @@ namespace ConsolePhoneStore.Utils
             return LeerOpcion();
         }
 
-        // MENÚ CATÁLOGO
+ 
+        /// Muestra el submenú del catálogo de teléfonos.
+        /// Opciones: Listar todos, Buscar por marca, Volver.
+ 
         public static int MostrarMenuCatalogo()
         {
             Console.Clear();
@@ -54,6 +65,10 @@ namespace ConsolePhoneStore.Utils
             return LeerOpcion();
         }
 
+ 
+        /// Lee una opción de menú de forma segura.
+        /// Devuelve -1 si la entrada no es un número válido.
+ 
         private static int LeerOpcion()
         {
             if (int.TryParse(Console.ReadLine(), out int opcion))

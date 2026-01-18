@@ -1,24 +1,27 @@
+using System.Text.Json.Serialization;
+
 namespace ConsolePhoneStore.Models
 {
-    /// <summary>
+    
     /// Clase que representa un cliente/usuario de la tienda.
     /// Almacena la información personal y de autenticación del usuario.
-    /// </summary>
     public class Customer
     {
         // Propiedades del cliente
-        public int Id { get; }
-        public string Name { get; }
-        public string Email { get; }
-        public string Password { get; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
         public string Role { get; set; } // ADMIN o CLIENT
-        public DateTime CreatedAt { get; }
-        public bool IsActive { get; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsActive { get; set; }
 
-        /// <summary>
+      
         /// Constructor del cliente que valida los datos de entrada.
         /// El rol por defecto es "CLIENT" si no se especifica.
-        /// </summary>
+        /// JsonConstructor permite la deserialización JSON sin constructor sin parámetros.
+       
+        [JsonConstructor]
         public Customer(int id, string name, string email, string password, string role = "CLIENT")
         {
             // Validar que el nombre no esté vacío y tenga máximo 10 caracteres
@@ -29,9 +32,9 @@ namespace ConsolePhoneStore.Models
             if (!EsEmailValido(email))
                 throw new ArgumentException("Email no válido");
 
-            // Validar que la contraseña tenga entre 6 y 10 caracteres
-            if (password.Length < 6 || password.Length > 10)
-                throw new ArgumentException("La contraseña debe tener entre 6 y 10 caracteres");
+            // Validar que la contraseña tenga al menos 6 caracteres
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+                throw new ArgumentException("La contraseña debe tener al menos 6 caracteres");
 
             // Asignar los valores a las propiedades
             Id = id;
@@ -43,10 +46,8 @@ namespace ConsolePhoneStore.Models
             IsActive = true;
         }
 
-        /// <summary>
         /// Método privado para validar el formato del email.
         /// Comprueba que contenga @ y al menos un punto (.).
-        /// </summary>
         private bool EsEmailValido(string email)
         {
             return email.Contains("@") && email.Contains(".");

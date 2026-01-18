@@ -4,13 +4,23 @@ using System.Text.Json.Serialization;
 
 namespace ConsolePhoneStore.Utils
 {
+    /// <summary>
+    /// Servicio de persistencia de datos a archivos JSON y txt.
+    /// Maneja la carga y guardado de clientes, teléfonos y registros de compras.
+    /// </summary>
     public static class FileService
     {
+        // Rutas de los archivos de datos
         private static readonly string customersPath = "Data/customers.json";
         private static readonly string phonesPath = "Data/phones.json";
 
-        // ==================== CLIENTES ====================
-        // 🔹 Cargar clientes desde fichero JSON
+        // ==================== GESTIÓN DE CLIENTES ====================
+
+ 
+        /// Carga la lista de clientes desde el archivo JSON.
+        /// Si el archivo no existe, devuelve una lista vacía.
+        /// Usa PropertyNameCaseInsensitive para permitir variaciones en mayúsculas.
+ 
         public static List<Customer> LoadCustomers()
         {
             List<Customer> customers = new();
@@ -32,7 +42,11 @@ namespace ConsolePhoneStore.Utils
             return customers;
         }
 
-        // 🔹 Guardar TODOS los clientes en JSON
+ 
+        /// Guarda la lista completa de clientes en el archivo JSON.
+        /// Sobrescribe el archivo anterior con los datos actualizados.
+        /// Utiliza WriteIndented para formato legible.
+ 
         public static void SaveCustomers(List<Customer> customers)
         {
             try
@@ -47,8 +61,13 @@ namespace ConsolePhoneStore.Utils
             }
         }
 
-        // ==================== TELÉFONOS ====================
-        // 🔹 Cargar teléfonos desde fichero JSON
+        // ==================== GESTIÓN DE TELÉFONOS ====================
+
+ 
+        /// Carga la lista de teléfonos desde el archivo JSON.
+        /// Si el archivo no existe, devuelve una lista vacía.
+        /// Usa PropertyNameCaseInsensitive para deserialización flexible.
+ 
         public static List<Phone> LoadPhones()
         {
             List<Phone> phones = new();
@@ -70,7 +89,11 @@ namespace ConsolePhoneStore.Utils
             return phones;
         }
 
-        // 🔹 Guardar TODOS los teléfonos en JSON
+ 
+        /// Guarda la lista completa de teléfonos en el archivo JSON.
+        /// Sobrescribe el archivo anterior con los datos actualizados del catálogo.
+        /// Utiliza WriteIndented para formato legible.
+ 
         public static void SavePhones(List<Phone> phones)
         {
             try
@@ -85,29 +108,33 @@ namespace ConsolePhoneStore.Utils
             }
         }
 
-        // ==================== COMPRAS ====================
+        // ==================== GESTIÓN DE COMPRAS ====================
+
+        /// Registra una compra completada en el archivo purchases.txt.
+        /// Append=true permite agregar múltiples compras al mismo archivo.
+        /// Registra fecha, cliente, detalles de productos y total.
         public static void SavePurchase(
-    string customerEmail,
-    List<(Phone phone, int quantity)> cart,
-    decimal total)
-{
-    string path = "purchases.txt";
+            string customerEmail,
+            List<(Phone phone, int quantity)> cart,
+            decimal total)
+        {
+            string path = "purchases.txt";
 
-    using StreamWriter writer = new(path, append: true);
+            using StreamWriter writer = new(path, append: true);
 
-    writer.WriteLine("=================================");
-    writer.WriteLine($"Fecha: {DateTime.Now}");
-    writer.WriteLine($"Cliente: {customerEmail}");
+            writer.WriteLine("=================================");
+            writer.WriteLine($"Fecha: {DateTime.Now}");
+            writer.WriteLine($"Cliente: {customerEmail}");
 
-    foreach (var item in cart)
-    {
-        writer.WriteLine(
-            $"{item.phone.Brand} {item.phone.Model} x{item.quantity} = {item.phone.Price * item.quantity}€"
-        );
-    }
+            foreach (var item in cart)
+            {
+                writer.WriteLine(
+                    $"{item.phone.Brand} {item.phone.Model} x{item.quantity} = {item.phone.Price * item.quantity}€"
+                );
+            }
 
-    writer.WriteLine($"TOTAL: {total}€");
-    writer.WriteLine();
-}
+            writer.WriteLine($"TOTAL: {total}€");
+            writer.WriteLine();
+        }
     }
 }

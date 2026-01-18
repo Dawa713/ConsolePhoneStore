@@ -2,9 +2,18 @@
 using ConsolePhoneStore.Models;
 using ConsolePhoneStore.Utils;
 
+// ==================== VARIABLES GLOBALES DE LA APLICACIÓN ====================
+// Usuario autenticado actualmente (null si no hay sesión activa)
 Customer? clienteLogueado = null;
+// Flag para controlar si el usuario desea salir de la aplicación
 bool salir = false;
 
+// ==================== MÉTODOS PRIVADOS DE LA APLICACIÓN ====================
+
+/// <summary>
+/// Muestra el catálogo completo de teléfonos disponibles.
+/// Lista todos los productos con su ID, marca, modelo y precio en euros.
+/// </summary>
 void MostrarCatalogo()
 {
     ConsoleHelper.SafeClear();
@@ -18,6 +27,10 @@ void MostrarCatalogo()
     Console.ReadKey();
 }
 
+/// <summary>
+/// Busca teléfonos por marca específica.
+/// Realiza búsqueda insensible a mayúsculas usando el servicio de búsqueda.
+/// </summary>
 void BuscarPorMarca()
 {
     Console.Write("Marca a buscar: ");
@@ -35,6 +48,10 @@ void BuscarPorMarca()
     Console.ReadKey();
 }
 
+/// <summary>
+/// Lee un número entero del usuario de forma segura.
+/// Repite el ciclo hasta que el usuario ingrese un número válido.
+/// </summary>
 int LeerEnteroSeguro(string mensaje)
 {
     while (true)
@@ -48,15 +65,20 @@ int LeerEnteroSeguro(string mensaje)
     }
 }
 
+// ==================== BUCLE PRINCIPAL DE LA APLICACIÓN ====================
+
+// Bucle principal que mantiene la aplicación en ejecución hasta que el usuario elige salir
 while (!salir)
 {
+    // Mostrar menú diferente según si existe sesión autenticada
     int opcion = clienteLogueado == null
-        ? Menu.MostrarMenuPublico()
-        : Menu.MostrarMenuPrivado(clienteLogueado.Name, clienteLogueado.Role == "ADMIN");
+        ? Menu.MostrarMenuPublico()           // Menú para usuarios NO autenticados
+        : Menu.MostrarMenuPrivado(clienteLogueado.Name, clienteLogueado.Role == "ADMIN"); // Menú para usuarios autenticados
 
     try
     {
-        // Si el usuario NO está logueado
+        // ==================== SECCIÓN: USUARIOS NO AUTENTICADOS ====================
+        // Procesar opciones solo si no hay usuario logueado
         if (clienteLogueado == null)
         {
             switch (opcion)
@@ -159,38 +181,14 @@ while (!salir)
                     break;
             }
         }
-        // Si el usuario SÍ está logueado
+        // ==================== SECCIÓN: USUARIOS AUTENTICADOS ====================
+        // Procesar opciones cuando hay usuario autenticado
         else
         {
             switch (opcion)
             {
-                // ================= CATÁLOGO =================
-                case 1:
-                    bool volver = false;
-
-                    while (!volver)
-                    {
-                        int opcionCatalogo = Menu.MostrarMenuCatalogo();
-
-                        switch (opcionCatalogo)
-                        {
-                            case 1:
-                                MostrarCatalogo();
-                                break;
-
-                            case 2:
-                                BuscarPorMarca();
-                                break;
-
-                            case 0:
-                                volver = true;
-                                break;
-                        }
-                    }
-                    break;
-
                 // ================= AÑADIR AL CARRITO =================
-                case 2:
+                case 1:
                     ConsoleHelper.SafeClear();
 
                     var phones = PhoneService.GetAll();
@@ -231,8 +229,8 @@ while (!salir)
                     Console.ReadKey();
                     break;
 
-                // ================= VER CARRITO =================
-                case 3:
+                // ================= VER CARRITO (submenú vaciar/finalizar) =================
+                case 2:
                     ConsoleHelper.SafeClear();
                     Console.WriteLine("🛒 CARRITO\n");
 
@@ -253,75 +251,101 @@ while (!salir)
                     }
 
                     Console.WriteLine($"\nSubtotal: {CartService.CalculateSubtotal():F2}€");
-                    Console.ReadKey();
-                    break;
 
-                // ================= QUITAR DEL CARRITO =================
-                case 4:
-                    ConsoleHelper.SafeClear();
-
-                    var cartRemove = CartService.GetCart();
-
-                    if (!cartRemove.Any())
+                    bool salirSubmenu = false;
+                    while (!salirSubmenu)
                     {
-                        Console.WriteLine("Carrito vacío");
-                        Console.ReadKey();
-                        break;
-                    }
+                        Console.WriteLine("\nOpciones del carrito:");
+                        Console.WriteLine("1. Vaciar carrito (doble confirmación)");
+                        Console.WriteLine("2. Finalizar compra");
+                        Console.WriteLine("0. Volver");
+                        int opcionCart = LeerEnteroSeguro("Opción: ");
 
-                    Console.WriteLine("🛒 CARRITO ACTUAL\n");
-
-                    foreach (var item in cartRemove)
-                    {
-                        Console.WriteLine(
-                            $"{item.phone.Id}. {item.phone.Brand} {item.phone.Model} x{item.quantity}"
-                        );
-                    }
-
-                    int removeId = LeerEnteroSeguro("\nID del producto a quitar: ");
-                    int removeQty = LeerEnteroSeguro("Cantidad a quitar: ");
-
-                    CartService.RemoveFromCart(removeId, removeQty);
-
-                    Console.WriteLine("✔️ Producto actualizado en el carrito");
-                    Console.ReadKey();
-                    break;
-
-                // ================= FINALIZAR COMPRA =================
-                case 5:
-                    ConsoleHelper.SafeClear();
-
-                    var subtotal = CartService.CalculateSubtotal();
-                    var iva = subtotal * 0.21m;
-                    var total = subtotal + iva;
-
-                    Console.WriteLine($"Subtotal: {subtotal:F2}€");
-                    Console.WriteLine($"IVA (21%): {iva:F2}€");
-                    Console.WriteLine($"TOTAL: {total:F2}€");
-
-                    Console.Write("\nConfirmar compra (s/n): ");
-                    if (Console.ReadLine()?.ToLower() == "s")
-                    {
-                        foreach (var item in CartService.GetCart())
+                        switch (opcionCart)
                         {
-                            item.phone.Stock -= item.quantity;
+                            case 1:
+                                // Vaciar con doble confirmación
+                                Console.WriteLine("\n⚠️ ¿DESEAS BORRAR TODO el carrito?");
+                                Console.WriteLine("0 - No, volver atrás");
+                                Console.WriteLine("1 - Sí, borrar TODO");
+
+                                bool confirmOk = false;
+                                while (!confirmOk)
+                                {
+                                    Console.Write("Confirmación (0 o 1): ");
+                                    string? confirm = Console.ReadLine();
+
+                                    if (confirm == "0")
+                                    {
+                                        Console.WriteLine("Operación cancelada. Carrito no modificado.");
+                                        confirmOk = true;
+                                    }
+                                    else if (confirm == "1")
+                                    {
+                                        CartService.ClearCart();
+                                        Console.WriteLine("✔️ Carrito vaciado completamente");
+                                        confirmOk = true;
+                                        salirSubmenu = true;
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("❌ Opción inválida. Solo puedes escribir 0 o 1.");
+                                        Console.WriteLine("   0 = No borrar  |  1 = Borrar todo");
+                                    }
+                                }
+                                break;
+
+                            case 2:
+                                // Finalizar compra
+                                var subtotal = CartService.CalculateSubtotal();
+                                var iva = subtotal * 0.21m;
+                                var total = subtotal + iva;
+
+                                Console.WriteLine($"Subtotal: {subtotal:F2}€");
+                                Console.WriteLine($"IVA (21%): {iva:F2}€");
+                                Console.WriteLine($"TOTAL: {total:F2}€");
+
+                                Console.Write("\nConfirmar compra (s/n): ");
+                                if (Console.ReadLine()?.ToLower() == "s")
+                                {
+                                    foreach (var item in CartService.GetCart())
+                                    {
+                                        item.phone.Stock -= item.quantity;
+                                    }
+
+                                    FileService.SavePurchase(
+                                        clienteLogueado!.Email,
+                                        CartService.GetCart(),
+                                        total
+                                    );
+
+                                    PhoneService.SavePhonesToFile();
+
+                                    CartService.ClearCart();
+                                    Console.WriteLine("✅ Compra guardada correctamente");
+                                    salirSubmenu = true;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Operación cancelada");
+                                }
+                                break;
+
+                            case 0:
+                                salirSubmenu = true;
+                                break;
+
+                            default:
+                                Console.WriteLine("❌ Opción inválida");
+                                break;
                         }
-
-                        FileService.SavePurchase(
-                            clienteLogueado!.Email,
-                            CartService.GetCart(),
-                            total
-                        );
-
-                        CartService.ClearCart();
-                        Console.WriteLine("✅ Compra guardada correctamente");
                     }
 
                     Console.ReadKey();
                     break;
 
                 // ================= AÑADIR NUEVO ARTÍCULO (ADMIN) =================
-                case 6:
+                case 3:
                     if (clienteLogueado?.Role != "ADMIN")
                         throw new Exception("Solo administradores pueden añadir artículos");
 
@@ -377,8 +401,9 @@ while (!salir)
                     Console.ReadKey();
                     break;
 
-                // ================= LOGOUT =================
+                // ================= LOGOUT: CERRAR SESIÓN =================
                 case 0:
+                    // Limpiar la variable de sesión para volver al menú público
                     clienteLogueado = null;
                     break;
 
