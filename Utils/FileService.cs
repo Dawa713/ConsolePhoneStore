@@ -112,37 +112,14 @@ namespace ConsolePhoneStore.Utils
 
         /// Registra una compra completada en el archivo purchases.txt.
         /// Append=true permite agregar múltiples compras al mismo archivo.
-        /// Registra fecha, cliente, detalles de productos y total.
-        public static void SavePurchase(
-            string customerEmail,
-            List<(Phone phone, int quantity)> cart,
-            decimal total)
+        /// La propia Purchase genera el texto del ticket (ToTicket()).
+        public static void SavePurchase(Purchase purchase)
         {
-            string path = "purchases.txt";
+            // Dentro de Data/ para que quede accesible a través del volumen del contenedor
+            string path = "Data/purchases.txt";
 
             using StreamWriter writer = new(path, append: true);
-
-            decimal subtotal = cart.Sum(i => i.phone.Price * i.quantity);
-            decimal iva = subtotal * 0.21m;
-
-            writer.WriteLine("=================================");
-            writer.WriteLine($"  CONSOLE PHONE STORE");
-            writer.WriteLine($"  Fecha: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
-            writer.WriteLine($"  Cliente: {customerEmail}");
-            writer.WriteLine("---------------------------------");
-
-            foreach (var item in cart)
-            {
-                decimal lineTotal = item.phone.Price * item.quantity;
-                writer.WriteLine($"  {item.phone.Brand} {item.phone.Model}");
-                writer.WriteLine($"    {item.quantity} x {item.phone.Price:F2}€ = {lineTotal:F2}€");
-            }
-
-            writer.WriteLine("---------------------------------");
-            writer.WriteLine($"  Subtotal:    {subtotal:F2}€");
-            writer.WriteLine($"  IVA (21%):   {iva:F2}€");
-            writer.WriteLine($"  TOTAL:       {total:F2}€");
-            writer.WriteLine("=================================");
+            writer.Write(purchase.ToTicket());
             writer.WriteLine();
         }
     }

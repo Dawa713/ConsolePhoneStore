@@ -1,7 +1,7 @@
-
 using ConsolePhoneStore.Services;
 using ConsolePhoneStore.Models;
 using ConsolePhoneStore.Utils;
+using Spectre.Console;
 
 class Program
 {
@@ -9,6 +9,8 @@ class Program
     {
         Customer? clienteLogueado = null;
         bool salir = false;
+        // Historial de compras en memoria: cada Purchase queda ligada a su Customer
+        List<Purchase> historialCompras = new();
 
         while (!salir)
         {
@@ -18,90 +20,77 @@ class Program
                 if (clienteLogueado == null)
                 {
                     // ---- ZONA PÚBLICA ----
-                    int opcion = Menu.MostrarMenuPrincipal();
+                    string opcion = Menu.MostrarMenuPrincipal();
 
                     switch (opcion)
                     {
-                        case 1:
+                        case "Ver catálogo":
                             bool volver = false;
                             while (!volver)
                             {
-                                int opcionCatalogo = Menu.MostrarMenuCatalogo();
+                                string opcionCatalogo = Menu.MostrarMenuCatalogo();
                                 switch (opcionCatalogo)
                                 {
-                                    case 1:
+                                    case "Listar todos":
                                         ConsoleHelper.SafeClear();
-                                        foreach (var phone in PhoneService.GetAll())
-                                        {
-                                            Console.WriteLine(
-                                                $"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price:C}"
-                                            );
-                                        }
-                                        Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                                        MostrarTablaTelefonos(PhoneService.GetAll());
+                                        AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                                         Console.ReadKey();
                                         break;
 
-                                    case 2:
-                                        Console.Write("Marca a buscar: ");
-                                        string brand = Console.ReadLine() ?? "";
+                                    case "Buscar por marca":
+                                        ConsoleHelper.SafeClear();
+                                        string brand = AnsiConsole.Ask<string>("Marca a buscar:");
                                         var results = PhoneService.SearchByBrand(brand);
+
                                         if (!results.Any())
-                                        {
-                                            Console.WriteLine("No se encontraron teléfonos.");
-                                        }
+                                            AnsiConsole.MarkupLine("[red]No se encontraron teléfonos.[/]");
                                         else
-                                        {
-                                            foreach (var phone in results)
-                                                Console.WriteLine($"{phone.Brand} {phone.Model} - {phone.Price:C}");
-                                        }
-                                        Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                                            MostrarTablaTelefonos(results);
+
+                                        AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                                         Console.ReadKey();
                                         break;
 
-                                    case 0:
+                                    case "Volver":
                                         volver = true;
                                         break;
                                 }
                             }
                             break;
 
-                        case 2:
+                        case "Registrarse":
                             ConsoleHelper.SafeClear();
-                            Console.WriteLine("📝 REGISTRO DE CLIENTE\n");
+                            AnsiConsole.MarkupLine("[bold]📝 REGISTRO DE CLIENTE[/]\n");
 
                             string nombre = InputValidator.ReadNonEmptyString("Nombre (máx 10 caracteres): ", 10);
                             string email = InputValidator.ReadValidEmail("Email: ");
                             string password = InputValidator.ReadPassword("Contraseña (6-10 caracteres): ", 6, 10);
 
                             CustomerService.Register(nombre, email, password);
-                            Console.WriteLine("\n✅ Registro completado correctamente");
-                            Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                            AnsiConsole.MarkupLine("\n[green]✅ Registro completado correctamente[/]");
+                            AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                             Console.ReadKey();
                             break;
 
-                        case 3:
-                            Console.Write("Email: ");
-                            string emailLogin = Console.ReadLine() ?? string.Empty;
-                            Console.Write("Contraseña: ");
-                            string passLogin = Console.ReadLine() ?? string.Empty;
+                        case "Iniciar sesión":
+                            ConsoleHelper.SafeClear();
+                            string emailLogin = AnsiConsole.Ask<string>("Email:");
+                            string passLogin = AnsiConsole.Prompt(
+                                new TextPrompt<string>("Contraseña:").Secret());
 
                             clienteLogueado = CustomerService.Login(emailLogin, passLogin);
 
                             if (clienteLogueado == null)
-                                Console.WriteLine("❌ Email o contraseña incorrectos");
+                                AnsiConsole.MarkupLine("[red]❌ Email o contraseña incorrectos[/]");
                             else
-                                Console.WriteLine($"✔️ Bienvenido {clienteLogueado.Name}");
+                                AnsiConsole.MarkupLine($"[green]✔️ Bienvenido {Markup.Escape(clienteLogueado.Name)}[/]");
 
                             Console.ReadKey();
                             break;
 
-                        case 0:
+                        case "Salir":
                             salir = true;
-                            break;
-
-                        default:
-                            Console.WriteLine("Opción inválida");
-                            Console.ReadKey();
                             break;
                     }
                 }
@@ -109,20 +98,16 @@ class Program
                 {
                     // ---- ZONA PRIVADA ----
                     bool esAdmin = clienteLogueado.Role == "ADMIN";
-                    int opcion = Menu.MostrarMenuPrivado(clienteLogueado.Name, esAdmin);
+                    string opcion = Menu.MostrarMenuPrivado(clienteLogueado.Name, esAdmin);
 
                     switch (opcion)
                     {
-                        case 1:
+                        case "Añadir producto al carrito":
                             ConsoleHelper.SafeClear();
-                            var phones = PhoneService.GetAll();
-                            foreach (var phone in phones)
-                                Console.WriteLine($"{phone.Id}. {phone.Brand} {phone.Model} - {phone.Price}€ (Stock: {phone.Stock})");
+                            MostrarTablaTelefonos(PhoneService.GetAll());
 
-                            Console.Write("\nID del teléfono: ");
-                            int id = int.Parse(Console.ReadLine()!);
-                            Console.Write("Cantidad: ");
-                            int quantity = int.Parse(Console.ReadLine()!);
+                            int id = AnsiConsole.Ask<int>("\nID del teléfono:");
+                            int quantity = AnsiConsole.Ask<int>("Cantidad:");
 
                             var selectedPhone = PhoneService.GetById(id);
                             if (selectedPhone == null)
@@ -131,91 +116,119 @@ class Program
                                 throw new Exception("Stock insuficiente");
 
                             CartService.AddToCart(selectedPhone, quantity);
-                            Console.WriteLine("✔️ Producto añadido al carrito");
-                            Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                            AnsiConsole.MarkupLine("[green]✔️ Producto añadido al carrito[/]");
+                            AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                             Console.ReadKey();
                             break;
 
-                        case 2:
+                        case "Ver carrito":
                             ConsoleHelper.SafeClear();
-                            Console.WriteLine("🛒 CARRITO\n");
+                            AnsiConsole.MarkupLine("[bold]🛒 CARRITO[/]\n");
                             var cart = CartService.GetCart();
 
                             if (!cart.Any())
                             {
-                                Console.WriteLine("Carrito vacío");
-                                Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                                AnsiConsole.MarkupLine("[grey]Carrito vacío[/]");
+                                AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                                 Console.ReadKey();
                                 break;
                             }
 
+                            var tablaCarrito = new Table();
+                            tablaCarrito.AddColumn("Teléfono");
+                            tablaCarrito.AddColumn("Cantidad");
+                            tablaCarrito.AddColumn("Total");
+
                             foreach (var item in cart)
-                                Console.WriteLine($"{item.phone.Brand} {item.phone.Model} x{item.quantity} = {item.phone.Price * item.quantity}€");
+                                tablaCarrito.AddRow(
+                                    $"{item.phone.Brand} {item.phone.Model}",
+                                    item.quantity.ToString(),
+                                    $"{item.phone.Price * item.quantity:F2}€");
 
-                            Console.WriteLine($"\nSubtotal: {CartService.CalculateSubtotal()}€");
+                            AnsiConsole.Write(tablaCarrito);
+                            AnsiConsole.MarkupLine($"\nSubtotal: {CartService.CalculateSubtotal():F2}€");
 
-                            Console.Write("\n¿Finalizar compra? (s/n): ");
-                            if (Console.ReadLine()?.ToLower() == "s")
+                            if (AnsiConsole.Confirm("¿Finalizar compra?"))
                             {
-                                var subtotal = CartService.CalculateSubtotal();
-                                var iva = subtotal * 0.21m;
-                                var total = subtotal + iva;
+                                // La propia Purchase calcula subtotal, IVA y total
+                                var purchase = new Purchase(clienteLogueado, CartService.GetCart());
 
-                                Console.WriteLine($"\nSubtotal: {subtotal:C}");
-                                Console.WriteLine($"IVA (21%): {iva:C}");
-                                Console.WriteLine($"TOTAL: {total:C}");
+                                AnsiConsole.MarkupLine($"\nSubtotal: {purchase.Subtotal:F2}€");
+                                AnsiConsole.MarkupLine($"IVA (21%): {purchase.Iva:F2}€");
+                                AnsiConsole.MarkupLine($"[bold]TOTAL: {purchase.Total:F2}€[/]");
 
-                                Console.Write("\nConfirmar compra (s/n): ");
-                                if (Console.ReadLine()?.ToLower() == "s")
+                                if (AnsiConsole.Confirm("Confirmar compra"))
                                 {
                                     foreach (var item in CartService.GetCart())
                                         item.phone.Stock -= item.quantity;
 
                                     PhoneService.SavePhonesToFile();
-
-                                    FileService.SavePurchase(
-                                        clienteLogueado.Email,
-                                        CartService.GetCart(),
-                                        total
-                                    );
+                                    FileService.SavePurchase(purchase);
+                                    historialCompras.Add(purchase);
 
                                     CartService.ClearCart();
-                                    Console.WriteLine("✅ Compra guardada correctamente");
+                                    AnsiConsole.MarkupLine("[green]✅ Compra guardada correctamente[/]");
                                 }
                             }
 
-                            Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                            AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                             Console.ReadKey();
                             break;
 
-                        case 3 when esAdmin:
+                        case "Mis compras":
                             ConsoleHelper.SafeClear();
-                            Console.WriteLine("➕ AÑADIR TELÉFONO AL CATÁLOGO\n");
+                            AnsiConsole.MarkupLine("[bold]🧾 MIS COMPRAS[/]\n");
 
-                            Console.Write("Marca: ");
-                            string newBrand = Console.ReadLine() ?? "";
-                            Console.Write("Modelo: ");
-                            string newModel = Console.ReadLine() ?? "";
-                            Console.Write("Precio: ");
-                            decimal newPrice = decimal.Parse(Console.ReadLine()!);
-                            Console.Write("Stock: ");
-                            int newStock = int.Parse(Console.ReadLine()!);
+                            // Zona privada: cada cliente solo ve su propia información asociada
+                            var misCompras = historialCompras
+                                .Where(p => p.Customer.Email == clienteLogueado.Email)
+                                .ToList();
+
+                            if (!misCompras.Any())
+                            {
+                                AnsiConsole.MarkupLine("[grey]Todavía no has realizado ninguna compra[/]");
+                            }
+                            else
+                            {
+                                var tablaCompras = new Table();
+                                tablaCompras.AddColumn("Fecha");
+                                tablaCompras.AddColumn("Artículos");
+                                tablaCompras.AddColumn("Total");
+                                tablaCompras.AddColumn("Estado");
+
+                                foreach (var p in misCompras)
+                                    tablaCompras.AddRow(
+                                        p.Date.ToString("dd/MM/yyyy HH:mm"),
+                                        p.Items.Count.ToString(),
+                                        $"{p.Total:F2}€",
+                                        p.Status);
+
+                                AnsiConsole.Write(tablaCompras);
+                            }
+
+                            AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
+                            Console.ReadKey();
+                            break;
+
+                        case "Añadir nuevo artículo al catálogo":
+                            ConsoleHelper.SafeClear();
+                            AnsiConsole.MarkupLine("[bold]➕ AÑADIR TELÉFONO AL CATÁLOGO[/]\n");
+
+                            string newBrand = AnsiConsole.Ask<string>("Marca:");
+                            string newModel = AnsiConsole.Ask<string>("Modelo:");
+                            decimal newPrice = AnsiConsole.Ask<decimal>("Precio:");
+                            int newStock = AnsiConsole.Ask<int>("Stock:");
 
                             PhoneService.AddPhone(newBrand, newModel, newPrice, newStock);
-                            Console.WriteLine("✅ Teléfono añadido correctamente");
-                            Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                            AnsiConsole.MarkupLine("[green]✅ Teléfono añadido correctamente[/]");
+                            AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                             Console.ReadKey();
                             break;
 
-                        case 0:
+                        case "Cerrar sesión":
                             clienteLogueado = null;
                             CartService.ClearCart();
-                            Console.WriteLine("👋 Sesión cerrada");
-                            Console.ReadKey();
-                            break;
-
-                        default:
-                            Console.WriteLine("Opción inválida");
+                            AnsiConsole.MarkupLine("[grey]👋 Sesión cerrada[/]");
                             Console.ReadKey();
                             break;
                     }
@@ -223,10 +236,31 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ ERROR: {ex.Message}");
-                Console.WriteLine("\nPulsa cualquier tecla para continuar...");
+                AnsiConsole.MarkupLine($"[red]❌ ERROR: {Markup.Escape(ex.Message)}[/]");
+                AnsiConsole.MarkupLine("\n[grey]Pulsa una tecla para continuar...[/]");
                 Console.ReadKey();
             }
         }
+    }
+
+    /// Muestra una lista de teléfonos como tabla con Spectre.Console.
+    static void MostrarTablaTelefonos(List<Phone> phones)
+    {
+        var tabla = new Table();
+        tabla.AddColumn("ID");
+        tabla.AddColumn("Marca");
+        tabla.AddColumn("Modelo");
+        tabla.AddColumn("Precio");
+        tabla.AddColumn("Stock");
+
+        foreach (var phone in phones)
+            tabla.AddRow(
+                phone.Id.ToString(),
+                phone.Brand,
+                phone.Model,
+                $"{phone.Price:F2}€",
+                phone.Stock.ToString());
+
+        AnsiConsole.Write(tabla);
     }
 }

@@ -33,5 +33,11 @@ RUN mkdir -p Data
 # Copiar archivos de datos iniciales (opcional, se pueden montar como volúmenes)
 COPY Data/ ./Data/
 
+# Puerto del contenedor (4 últimas cifras del usuario de San Valero: a27959svalero)
+EXPOSE 7959
+
+# Volumen para persistir los datos (clientes, teléfonos, compras) fuera del contenedor
+VOLUME ["/app/Data"]
+
 # Punto de entrada de la aplicación
 ENTRYPOINT ["dotnet", "ConsolePhoneStore.dll"]

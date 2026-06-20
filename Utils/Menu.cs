@@ -1,80 +1,57 @@
+using Spectre.Console;
+
 namespace ConsolePhoneStore.Utils
 {
     /// <summary>
     /// Clase de utilidad para mostrar los diferentes menús de la aplicación.
-    /// Proporciona interfaces visuales para usuarios logueados y no logueados.
+    /// Usa Spectre.Console (SelectionPrompt) en vez de menús numerados:
+    /// el usuario navega con flechas y Enter, y nunca puede introducir
+    /// una opción inválida porque solo existen las opciones de la lista.
     /// </summary>
     public static class Menu
     {
- 
         /// Muestra el menú principal para usuarios NO logueados.
-        /// Opciones: Ver catálogo, Registrarse, Iniciar sesión, Salir.
- 
-        public static int MostrarMenuPrincipal()
+        public static string MostrarMenuPrincipal()
         {
-            Console.Clear();
-            Console.WriteLine("=== CONSOLE PHONE STORE ===");
-            Console.WriteLine("1. Ver catálogo");
-            Console.WriteLine("2. Registrarse");
-            Console.WriteLine("3. Iniciar sesión");
-            Console.WriteLine("0. Salir");
-            Console.Write("Opción: ");
+            ConsoleHelper.SafeClear();
+            AnsiConsole.Write(new Rule("[yellow]CONSOLE PHONE STORE[/]").Centered());
 
-            return LeerOpcion();
+            return AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("¿Qué deseas hacer?")
+                    .AddChoices("Ver catálogo", "Registrarse", "Iniciar sesión", "Salir"));
         }
 
- 
-        /// Muestra el menú principal para usuarios logueados.
-        /// Si es administrador, muestra opción adicional para añadir productos.
-        /// Opciones: Añadir carrito, Ver carrito (con submenú para vaciar/finalizar), (Admin: Añadir), Logout.
- 
-        public static int MostrarMenuPrivado(string nombreUsuario, bool esAdmin = false)
+        /// Muestra el menú para usuarios logueados.
+        /// Si es administrador, añade la opción de gestionar el catálogo.
+        public static string MostrarMenuPrivado(string nombreUsuario, bool esAdmin = false)
         {
-            Console.Clear();
-            Console.WriteLine($"=== BIENVENIDO {nombreUsuario.ToUpper()} ===");
-            if (esAdmin)
-                Console.WriteLine("(ADMINISTRADOR)\n");
-            else
-                Console.WriteLine();
-            
-            Console.WriteLine("1. Añadir producto al carrito");
-            Console.WriteLine("2. Ver carrito ");
-            
-            if (esAdmin)
-                Console.WriteLine("3. Añadir nuevo artículo al catálogo (ADMIN)");
-            
-            Console.WriteLine("0. Cerrar sesión");
-            Console.Write("Opción: ");
+            ConsoleHelper.SafeClear();
+            string titulo = $"Bienvenido {Markup.Escape(nombreUsuario.ToUpper())}";
+            if (esAdmin) titulo += " (ADMIN)";
+            AnsiConsole.Write(new Rule($"[green]{titulo}[/]").Centered());
 
-            return LeerOpcion();
+            var opciones = new List<string> { "Añadir producto al carrito", "Ver carrito", "Mis compras" };
+            if (esAdmin)
+                opciones.Add("Añadir nuevo artículo al catálogo");
+            opciones.Add("Cerrar sesión");
+
+            return AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Elige una opción")
+                    .AddChoices(opciones));
         }
 
- 
         /// Muestra el submenú del catálogo de teléfonos.
-        /// Opciones: Listar todos, Buscar por marca, Volver.
- 
-        public static int MostrarMenuCatalogo()
+        public static string MostrarMenuCatalogo()
         {
-            Console.Clear();
-            Console.WriteLine("📱 CATÁLOGO DE TELÉFONOS");
-            Console.WriteLine("1. Listar todos");
-            Console.WriteLine("2. Buscar por marca");
-            Console.WriteLine("0. Volver");
-            Console.Write("Opción: ");
+            ConsoleHelper.SafeClear();
+            AnsiConsole.Write(new Rule("[blue]CATÁLOGO DE TELÉFONOS[/]").Centered());
 
-            return LeerOpcion();
-        }
-
- 
-        /// Lee una opción de menú de forma segura.
-        /// Devuelve -1 si la entrada no es un número válido.
- 
-        private static int LeerOpcion()
-        {
-            if (int.TryParse(Console.ReadLine(), out int opcion))
-                return opcion;
-
-            return -1;
+            return AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Elige una opción")
+                    .AddChoices("Listar todos", "Buscar por marca", "Volver"));
         }
     }
 }
