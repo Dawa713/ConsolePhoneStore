@@ -58,7 +58,7 @@
     "Brand": "bobobophone",
     "Model": "bobobo one",
     "Price": 555,
-    "Stock": -5,
+    "Stock": 5,
     "ReleaseDate": "2026-06-18T13:15:22.5994674+02:00",
     "IsActive": true
   }
